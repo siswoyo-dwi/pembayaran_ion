@@ -1,0 +1,227 @@
+<% include ../../template-backoffice/header.ejs %>
+
+<!-- BEGIN PAGE CONTENT -->
+<div class="page-content">
+  <div class="header">
+    <h2><strong>Data</strong></h2>
+    <div class="breadcrumb-wrapper">
+      <ol class="breadcrumb">
+        <li><a href="/backoffice">Dashboard</a>
+        </li>
+        <li class="active">Data</li>
+      </ol>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="panel">
+        <div class="panel-header header-line">
+           <!-- <a class="btn btn-primary btn-embossed" href="/manajemen_ps/insert" role="button"><i class="fa fa-plus" aria-hidden="true"></i>Tambah Data</a> -->
+        </div>
+        <div class="panel-content pagination2">
+          <table class="table table-bordered table-striped table-hover" id="data">
+            <thead>
+              <tr>
+                <th class="header">No.</th>
+                <th class="header">Ps</th>
+                <th class="header">Biaya</th>
+                <th class="header">Start</th>
+                <th class="header">End</th>
+                <th class="header">Total Biaya</th>
+                <th class="header">Option</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+            
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>  
+  </div>
+  <div class="footer">
+    <div class="copyright">
+      <p class="pull-left sm-pull-reset">
+        <span>Copyright <span class="copyright">©</span> <%=new Date().getFullYear()%> </span>
+        <span>SwK</span>.
+      </p>
+    </div>
+  </div>
+</div>
+<!-- END PAGE CONTENT -->
+ <!-- modal paket -->
+ <div class="modal fade" id="modal-paket" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Pilih Paket</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <form>
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="">Paket</label>
+                      <select name=""  class="form-control" id="paket_id">
+                      </select>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                  <button type="button" class="btn btn-primary"  onclick="ubah_biaya()">Simpan</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+<% include ../../template-backoffice/footer.ejs %>
+
+<script type="text/javascript">      
+    function nomorDenganKoma(nomor) {
+    return nomor.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+  }
+  let ps =[]
+  let paket =[]
+  let biaya = {'PS3':3000,'PS4' : 4000,'PS5' : 5000}
+
+  window.onload =async function () {
+    ps =await $.get('/ps/list')
+    paket =await $.get('/paket/list')
+    console.log(ps,paket);
+
+  }
+
+   let data=  $('#data').DataTable({
+      "language": {
+          "sProcessing":   "Sedang memproses...",
+          "sLengthMenu":   "_MENU_",
+          "sZeroRecords":  "Tidak ditemukan data yang sesuai",
+          "sInfo":         "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+          "sInfoEmpty":    "Menampilkan 0 sampai 0 dari 0 entri",
+          "sInfoFiltered": "(disaring dari _MAX_ entri keseluruhan)",
+          "sInfoPostFix":  "",
+          "sUrl":          "",
+          "oPaginate": {
+            "sFirst":    "Pertama",
+            "sPrevious": "Sebelumnya",
+            "sNext":     "Selanjutnya",
+            "sLast":     "Terakhir"
+          }
+      },
+      "processing": true,
+           "ajax":  `/ps/list`,
+           "columns": [
+               { "data": null},
+               { "data": "ps"},
+               { "data": "biaya",render : function (data) {
+                return data?nomorDenganKoma(data):''
+               }},
+               { "data": "start1"},
+               { "data": "end1"},
+               { "data": "total_biaya",render : function (data) {
+                  return data?nomorDenganKoma(data):''
+               }},
+               { "data": null,render: function(data){
+                let a = ''
+                if (data.status == 0) {
+                    a = `
+                  <div>
+                    <button class="button  btn-embossed btn-sm btn-success" onclick="mulai('${data.ps_id}','${data.ps}')">Mulai</button>
+                    <button class="button  btn-embossed btn-sm btn-danger" onclick="reset('${data.ps_id}','${data.ps}')">Reset</button>
+                  </div>
+                  <br>
+                  <div class="mt-5">
+                    <button type="button" class="btn btn-primary  btn-embossed btn-sm " onclick="set_idx('${data.ps_id}','${data.ps}')"  data-toggle="modal" data-target="#modal-paket"><i class="fa fa-filter" aria-hidden="true">Paket</i></button>
+                  </div>`
+                }else{
+                  a += `<button class="button  btn-embossed btn-sm btn-warning" onclick="selesai('${data.ps_id}','${data.ps}')">Selesai</button>`
+                }
+                return `<td><center>${a}</center></td>`
+               }},
+        
+        ],
+      "columnDefs": [
+          { "width": "100px", "targets": 0}
+      ],
+    });
+    data.on( 'draw.dt', function () {
+    let PageInfo = $('#data').DataTable().page.info();
+    data.column(0, { page: 'current' }).nodes().each( function (cell, i) {
+            cell.innerHTML = i + 1 + PageInfo.start;
+        } );
+    } ); 
+    function hapus(id) {
+      if (confirm('Apakah Anda Yakin Untuk Menghapus Data Ini ?')) {
+        if (confirm('Data Akan Terhapus dan Tidak Bisa Kembali!')) {
+          $.get('/ps/hapus/'+id).then(function () {
+            alert('Data Telah terhapus ...')
+            location.href = '/manajemen_ps'
+          })
+        }
+      }
+    }
+  let idx = 0
+  function set_idx(id,p) {
+    idx = id
+    $('#paket_id').empty()
+    $('#paket_id').select2("val", "");
+    $('#paket_id').append(`<option value="">--Pilih--</option>`)
+    for (let i = 0; i < paket.data.length; i++) {
+      if(p==paket.data[i].ps){
+        $('#paket_id').append(`<option value="${paket.data[i].paket_id}">${paket.data[i].nama}</option>`)
+      }
+    }
+  }
+
+  function ubah_biaya() {
+    let post ={
+      paket_id:$('#paket_id').val(),
+      ps_id: idx,
+    }
+    $.post('/ps/paket',post).then(function (hsl) {
+    alert('sukses')
+      location.href = '/manajemen_billing'
+  })
+  }
+  function mulai(idx,ps) {
+    let post ={
+      biaya:biaya[ps],
+      ps_id: idx,
+    }
+    $.post('/ps/mulai',post).then(function (hsl) {
+    alert('sukses')
+      location.href = '/manajemen_billing'
+  })
+  }
+  function selesai(idx) {
+    let post ={
+      paket_id:$('#paket_id').val(),
+    ps_id: idx,
+    }
+    $.post('/ps/selesai',post).then(function (hsl) {
+    alert('sukses')
+      location.href = '/manajemen_billing'
+  })
+}
+  function reset(idx) {
+    let post={ps_id:idx}
+    $.post('/ps/reset',post).then(function (hsl) {
+    alert('sukses')
+      location.href = '/manajemen_billing'
+  })
+  }
+  setInterval(() => {
+    for (let i = 0; i < ps.length; i++) {
+      console.log(ps[i],ps[i].timer,ps[i].end);
+      if (ps[i].timer&&ps[i].end) {
+        if (new Date()>ps[i].end&&new Date().getTime()-new Date(ps[i].end).getTime()<60000) {
+          alert(ps[i].ps+' '+ps[i].no_msn+' Selesai!')
+        }
+      }      
+    }
+  }, 60000);
+
+</script>

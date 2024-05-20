@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="PS">
+    <link rel="shortcut icon" href="/images/ps.png" type="image/png">
+    <title>Dashboard BillingKu</title>
+
+    <link href="/stylesheets/template/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/stylesheets/template/css/style.css" rel="stylesheet">
+    <link href="/stylesheets/template/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Plugin This Page --> 
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/> -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- End Plugins This Page -->
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+        body { 
+            position: relative;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+
+    h1,h2,h3,h4,h5,h6{
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    </style>
+</head>
+
+<body>
+    
+    <section style="background-color: ;padding: 60px 0 0 0;" class="d-none d-lg-block d-xl-block">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-xl-12">
+                    <div style="width: 100%;height: 90vh;background-color: ;padding: 30px;">
+                        <div class="row">
+                            <div class="col-lg-12 col-xl-12">
+                                <h4><strong>DASHBOARD</strong></h4>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="" class="col-sm-2 col-form-label">Total Pendapatan Paket</label>
+                            <div class="col-sm-10">
+                                <select name=""  class="form-control"  id="cari">
+                                    <option value="">--Pilih--</option>
+                                    <option value="harian">Harian</option>
+                                    <option value="bulanan">Bulanan</option>
+                                    <option value="tahunan">Tahunan</option>
+                                    <option value="seluruh">Seluruh</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" id="harian">
+                            <div class="col-lg-12 col-xl-12">
+                                <h4><strong>HARIAN</strong></h4>
+                            </div>
+                            <div id="list1"></div>
+                        </div>
+                        <div class="row" id="bulanan">
+                            <div class="col-lg-12 col-xl-12">
+                                <h4><strong>BULANAN</strong></h4>
+                            </div>
+                            <div id="list2"></div>
+                        </div>
+                        <div class="row" id="tahunan">
+                            <div class="col-lg-12 col-xl-12">
+                                <h4><strong>TAHUNAN</strong></h4>
+                            </div>
+                            <div id="list3"></div>
+                        </div>
+                        <div class="row" id="seluruh">
+                            <div class="col-lg-12 col-xl-12">
+                                <h4><strong>SELURUH</strong></h4>
+                            </div>
+                            <div id="list4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="/javascripts/template/jquery.min.js"></script>
+    <script src="/javascripts/template/bootstrap.bundle.min.js"></script>
+    <!-- Plugins This Page -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.0/jquery.waypoints.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery.counterup@2.1.0/jquery.counterup.min.js"></script>
+    <!-- End Plugins This Page -->
+    <script type="text/javascript">
+        AOS.init();
+        $('.counterup').counterUp({
+            delay: 200, // the delay time in ms
+            time: 1500 // the speed time in ms
+        });
+        $('#harian').hide()
+        $('#bulanan').hide()
+        $('#tahunan').hide()
+        $('#seluruh').hide()
+        $('#cari').change(function () {
+            
+            if ($('#cari').val()=='harian') {
+                $('#harian').show()
+                $('#bulanan').hide()
+                $('#tahunan').hide()
+                $('#seluruh').hide()
+            }else if ($('#cari').val()=='bulanan') {
+                $('#harian').hide()
+                $('#bulanan').show()
+                $('#tahunan').hide()
+                $('#seluruh').hide()
+            }else if ($('#cari').val()=='tahunan') {
+                $('#harian').hide()
+                $('#bulanan').hide()
+                $('#tahunan').show()
+                $('#seluruh').hide()
+            }else if ($('#cari').val()=='seluruh') {
+                $('#harian').hide()
+                $('#bulanan').hide()
+                $('#tahunan').hide()
+                $('#seluruh').show()
+            }else{
+                $('#harian').hide()
+                $('#bulanan').hide()
+                $('#tahunan').hide()
+                $('#seluruh').hide()
+            }
+        })
+        $.post('/paket/count_paket_by',{by:'hari'}).then(function (hsl) {
+            console.log(hsl);
+            for (let i = 0; i < hsl.data.length; i++) {
+                let a = hsl.data[i]
+        $('#list1').append(`
+        <div class="col-lg-3 col-xl-3 mt-3">
+            <div class="card" style="border: none;box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;">
+                <div class="card-body" style="padding: 15px;position: relative;">
+                    <div style="width:40px;height: 40px;display: flex;justify-content: center;align-items: center;position: absolute;top:-20px;right:15px;background-color: brown;border-radius: 8px;">
+                        <h6 style="margin: 0;padding:0;color:#fff;"><strong>${a.y}</strong></h6>
+                    </div>
+                    <div style="display: flex;">
+                        <img src="/images/ps.png" alt="" style="height:70px;">
+                        <div style="height: 70px;display: flex;justify-content: center;align-items: flex-start;margin-left: 10px;flex-direction: column;">
+                            <h6 style="font-size: 18px;"></h6>
+                            <h6 style="font-size: 14px;"></h6>
+                            <div style="width: 100%;height: 5px;background-color: brown;"></div>
+                            <div style="display: flex;align-items: flex-end;">
+                                <h5 class="counterup" style="margin-top: 5px !important;" ><strong>${a.label}</strong></h5>&nbsp;<small></small>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`)}
+    })
+
+        $.post('/paket/count_paket_by',{by:'bulan'}).then(function (hsl) {
+            console.log(hsl);
+            for (let i = 0; i < hsl.data.length; i++) {
+                let a = hsl.data[i]
+        $('#list2').append(`
+        <div class="col-lg-3 col-xl-3 mt-3">
+            <div class="card" style="border: none;box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;">
+                <div class="card-body" style="padding: 15px;position: relative;">
+                    <div style="width:40px;height: 40px;display: flex;justify-content: center;align-items: center;position: absolute;top:-20px;right:15px;background-color: brown;border-radius: 8px;">
+                        <h6 style="margin: 0;padding:0;color:#fff;"><strong>${a.y}</strong></h6>
+                    </div>
+                    <div style="display: flex;">
+                        <img src="/images/ps.png" alt="" style="height:70px;">
+                        <div style="height: 70px;display: flex;justify-content: center;align-items: flex-start;margin-left: 10px;flex-direction: column;">
+                            <h6 style="font-size: 18px;"></h6>
+                            <h6 style="font-size: 14px;"></h6>
+                            <div style="width: 100%;height: 5px;background-color: brown;"></div>
+                            <div style="display: flex;align-items: flex-end;">
+                                <h5 class="counterup" style="margin-top: 5px !important;" ><strong>${a.label}</strong></h5>&nbsp;<small></small>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`)}
+    })
+
+        $.post('/paket/count_paket_by',{by:'tahun'}).then(function (hsl) {
+            console.log(hsl);
+            for (let i = 0; i < hsl.data.length; i++) {
+                let a = hsl.data[i]
+        $('#list3').append(`
+        <div class="col-lg-3 col-xl-3 mt-3">
+            <div class="card" style="border: none;box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;">
+                <div class="card-body" style="padding: 15px;position: relative;">
+                    <div style="width:40px;height: 40px;display: flex;justify-content: center;align-items: center;position: absolute;top:-20px;right:15px;background-color: brown;border-radius: 8px;">
+                        <h6 style="margin: 0;padding:0;color:#fff;"><strong>${a.y}</strong></h6>
+                    </div>
+                    <div style="display: flex;">
+                        <img src="/images/ps.png" alt="" style="height:70px;">
+                        <div style="height: 70px;display: flex;justify-content: center;align-items: flex-start;margin-left: 10px;flex-direction: column;">
+                            <h6 style="font-size: 18px;"></h6>
+                            <h6 style="font-size: 14px;"></h6>
+                            <div style="width: 100%;height: 5px;background-color: brown;"></div>
+                            <div style="display: flex;align-items: flex-end;">
+                                <h5 class="counterup" style="margin-top: 5px !important;" ><strong>${a.label}</strong></h5>&nbsp;<small></small>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`)}
+    })
+
+        $.post('/paket/count_paket_by').then(function (hsl) {
+            console.log(hsl);
+            for (let i = 0; i < hsl.data.length; i++) {
+                let a = hsl.data[i]
+        $('#list4').append(`
+        <div class="col-lg-3 col-xl-3 mt-3">
+            <div class="card" style="border: none;box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;">
+                <div class="card-body" style="padding: 15px;position: relative;">
+                    <div style="width:40px;height: 40px;display: flex;justify-content: center;align-items: center;position: absolute;top:-20px;right:15px;background-color: brown;border-radius: 8px;">
+                        <h6 style="margin: 0;padding:0;color:#fff;"><strong>${a.y}</strong></h6>
+                    </div>
+                    <div style="display: flex;">
+                        <img src="/images/ps.png" alt="" style="height:70px;">
+                        <div style="height: 70px;display: flex;justify-content: center;align-items: flex-start;margin-left: 10px;flex-direction: column;">
+                            <h6 style="font-size: 18px;"></h6>
+                            <h6 style="font-size: 14px;"></h6>
+                            <div style="width: 100%;height: 5px;background-color: brown;"></div>
+                            <div style="display: flex;align-items: flex-end;">
+                                <h5 class="counterup" style="margin-top: 5px !important;" ><strong>${a.label}</strong></h5>&nbsp;<small></small>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`)}
+    })
+
+    </script>
+</body>
+</html>

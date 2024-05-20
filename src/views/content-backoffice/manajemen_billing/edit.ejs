@@ -1,0 +1,79 @@
+<% include ../../template-backoffice/header.ejs %>
+<!-- BEGIN PAGE CONTENT -->
+<div class="page-content">
+  <div class="header">
+    <h2><strong>Tambah Data PS</strong></h2>
+    <div class="breadcrumb-wrapper">
+      <ol class="breadcrumb">
+        <li><a href="/backoffice">Dashboard</a></li>
+        <li><a href="/manajemen_ps">Data</a></li>
+        <li class="active">Tambah Data</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="panel">
+        <div class="panel-content">
+          <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <div class="form-group">
+                <label>Ps</label>
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <!-- <input type="text" class="form-control" name="" id=""> -->
+                    <select name="" class="form-control"  id="ps">
+                      <option value="">-- Pilih --</option>
+                      <option value="PS3">-- PS3 --</option>
+                      <option value="PS4">-- PS4 --</option>
+                      <option value="PS5">-- PS5 --</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Nomor Mesin</label>
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <input type="text" class="form-control" name="" id="no_msn">
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary btn-embossed" onclick="simpan()">Simpan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="copyright">
+      <p class="pull-left sm-pull-reset">
+        <span>Copyright <span class="copyright">©</span> <%=new Date().getFullYear()%> </span>
+        <span>SwK</span>.
+      </p>
+    </div>
+  </div>
+</div>
+<!-- END PAGE CONTENT -->
+
+<% include ../../template-backoffice/footer.ejs %>
+<script type="text/javascript">
+  let ps = {}
+  $.post('/ps/list',{ps_id:'<%=id%>'}).then(function (hsl) {
+    ps = hsl.data[0]
+    $('#ps').val(ps.ps)
+    $('#no_msn').val(ps.no_msn)
+  })
+
+  function simpan() {
+    $.post('/ps/edit',{ps:$('#ps').val(),no_msn:$('#no_msn').val(),ps_id:'<%=id%>'}).then(function (id) {
+    console.log(id);
+    alert('sukses')
+      location.href = '/manajemen_ps'
+  })
+  }
+
+</script>
