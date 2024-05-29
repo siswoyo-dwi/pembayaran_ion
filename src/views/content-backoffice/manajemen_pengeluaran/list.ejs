@@ -1,0 +1,124 @@
+<% include ../../template-backoffice/header.ejs %>
+
+<!-- BEGIN PAGE CONTENT -->
+<div class="page-content">
+  <div class="header">
+    <h2><strong>Data</strong></h2>
+    <div class="breadcrumb-wrapper">
+      <ol class="breadcrumb">
+        <li><a href="/backoffice">Dashboard</a>
+        </li>
+        <li class="active">Data</li>
+      </ol>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="panel">
+        <div class="panel-header header-line">
+           <a class="btn btn-primary btn-embossed" href="/manajemen_pengeluaran/insert" role="button"><i class="fa fa-plus" aria-hidden="true"></i>Tambah Data</a>
+        </div>
+        <div class="panel-content pagination2">
+          <table class="table table-bordered table-striped table-hover" id="data">
+            <thead>
+              <tr>
+                <th class="header">No.</th>
+                <th class="header">Pengeluaran</th>
+                <th class="header">Pada</th>
+                <th class="header">Keterangan</th>
+                <th class="header">Option</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+            
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>  
+  </div>
+  <div class="footer">
+    <div class="copyright">
+      <p class="pull-left sm-pull-reset">
+        <span>Copyright <span class="copyright">©</span> <%=new Date().getFullYear()%> </span>
+        <span>SwK</span>.
+      </p>
+    </div>
+  </div>
+</div>
+<!-- END PAGE CONTENT -->
+
+<% include ../../template-backoffice/footer.ejs %>
+
+<script type="text/javascript">      
+    function nomorDenganKoma(nomor) {
+    return nomor.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+  }
+  let ps =[]
+  let paket =[]
+  window.onload =async function () {
+    ps =await $.get('/ps/list')
+    paket =await $.get('/paket/list')
+    console.log(ps,paket);
+
+  }
+
+   let data=  $('#data').DataTable({
+      "language": {
+          "sProcessing":   "Sedang memproses...",
+          "sLengthMenu":   "_MENU_",
+          "sZeroRecords":  "Tidak ditemukan data yang sesuai",
+          "sInfo":         "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
+          "sInfoEmpty":    "Menampilkan 0 sampai 0 dari 0 entri",
+          "sInfoFiltered": "(disaring dari _MAX_ entri keseluruhan)",
+          "sInfoPostFix":  "",
+          "sUrl":          "",
+          "oPaginate": {
+            "sFirst":    "Pertama",
+            "sPrevious": "Sebelumnya",
+            "sNext":     "Selanjutnya",
+            "sLast":     "Terakhir"
+          }
+      },
+      "processing": true,
+           "ajax":  `/pengeluaran/list`,
+           "columns": [
+               { "data": null},
+               { "data": "pengeluaran",render : function (data) {
+                return data?nomorDenganKoma(data):''
+               }},
+               { "data": "insertedAt1"},
+               { "data": "keterangan"},
+               { "data": null,render: function(data){
+                let a = ''
+                  a += `<button class="button  btn-embossed btn-sm btn-warning" onclick="pindah('${data.pengeluaran_id}')">Edit</button>`
+                return `<td><center>${a}</center></td>`
+               }},
+        
+        ],
+      "columnDefs": [
+          { "width": "100px", "targets": 0}
+      ],
+    });
+    data.on( 'draw.dt', function () {
+    let PageInfo = $('#data').DataTable().page.info();
+    data.column(0, { page: 'current' }).nodes().each( function (cell, i) {
+            cell.innerHTML = i + 1 + PageInfo.start;
+        } );
+    } ); 
+    function hapus(id) {
+      if (confirm('Apakah Anda Yakin Untuk Menghapus Data Ini ?')) {
+        if (confirm('Data Akan Terhapus dan Tidak Bisa Kembali!')) {
+          $.get('/pengeluaran/hapus/'+id).then(function () {
+            alert('Data Telah terhapus ...')
+            location.href = '/manajemen_pengeluaran'
+          })
+        }
+      }
+    }
+    function pindah(params) {
+      location.href = '/manajemen_pengeluaran/edit/'+params
+
+    }
+</script>

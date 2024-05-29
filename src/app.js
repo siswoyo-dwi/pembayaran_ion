@@ -24,7 +24,10 @@ var manajemen_basic = require('./isine/manajemen_basic');
 var manajemen_billing = require('./isine/manajemen_billing');
 var manajemen_ps = require('./isine/manajemen_ps');
 var manajemen_paket = require('./isine/manajemen_paket');
+var manajemen_pengeluaran = require('./isine/manajemen_pengeluaran');
+
 var ps = require('./isine/ps');
+var pengeluaran = require('./isine/pengeluaran');
 var paket = require('./isine/paket');
 var log = require('./isine/log');
 
@@ -104,6 +107,9 @@ app.use('/manajemen_basic', manajemen_basic);
 app.use('/manajemen_billing', manajemen_billing);
 app.use('/manajemen_ps', manajemen_ps);
 app.use('/manajemen_paket', manajemen_paket);
+app.use('/manajemen_pengeluaran', manajemen_pengeluaran);
+
+app.use('/pengeluaran', pengeluaran);
 
 app.use('/paket', paket);
 app.use('/log', log);

@@ -1,0 +1,75 @@
+<% include ../../template-backoffice/header.ejs %>
+<!-- BEGIN PAGE CONTENT -->
+<div class="page-content">
+  <div class="header">
+    <h2><strong>Tambah Data Pengeluaran</strong></h2>
+    <div class="breadcrumb-wrapper">
+      <ol class="breadcrumb">
+        <li><a href="/backoffice">Dashboard</a></li>
+        <li><a href="/manajemen_pengeluaran">Data</a></li>
+        <li class="active">Tambah Data</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div class="panel">
+        <div class="panel-content">
+          <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <div class="form-group">
+                <label>Pengeluaran</label>
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <input type="text" class="form-control" name="" id="pengeluaran">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Keterangan</label>
+                <div class="row">
+                  <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                    <textarea name=""  class="form-control"  id="keterangan"></textarea>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary btn-embossed" onclick="simpan()">Simpan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="copyright">
+      <p class="pull-left sm-pull-reset">
+        <span>Copyright <span class="copyright">©</span> <%=new Date().getFullYear()%> </span>
+        <span>SwK</span>.
+      </p>
+    </div>
+  </div>
+</div>
+<!-- END PAGE CONTENT -->
+
+<% include ../../template-backoffice/footer.ejs %>
+<script type="text/javascript">
+  let pengeluaran = {}
+  $.post('/pengeluaran/list',{pengeluaran_id:'<%=id%>'}).then(function (hsl) {
+    pengeluaran = hsl.data[0]
+    for (const i in hsl.data[0]) {
+      if (Object.hasOwnProperty.call(hsl.data[0], i)) {
+        $('#'+i).val(hsl.data[0][i])
+      }
+    }
+  })
+
+  function simpan() {
+    $.post('/pengeluaran/edit',{pengeluaran:$('#pengeluaran').val(),keterangan:$('#keterangan').val(),pengeluaran_id:pengeluaran.pengeluaran_id}).then(function (id) {
+    alert('sukses')
+      location.href = '/manajemen_pengeluaran'
+  })
+  }
+
+</script>
