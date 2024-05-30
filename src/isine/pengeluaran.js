@@ -189,4 +189,30 @@ router.get('/list',async function(req, res) {
  })
 })
 
+router.post('/chart',async function(req, res) {
+  let {tahun} = req.body
+  let value = []
+  let label = 'M'
+  let thn = new Date().getFullYear()
+  let str = ` and date_format(p.insertedAt,'%Y') = ` 
+
+  if (tahun=='-') {
+    label = 'Y'
+    thn = ''
+    str = ''
+  }else if (tahun) {
+    thn = tahun
+  }
+
+  let sql = `select p.pengeluaran as y ,date_format(p.insertedAt,'%d-%m-%Y') as pada, date_format(p.insertedAt,'%${label}') as label from pengeluaran p where p.deletedAt is null ${str} ${thn} group by label  `
+  
+  await sql_enak.raw(sql,value).then(data=>{
+    res.status(200).json({ data: data[0]})
+ })
+ .catch(err=>{
+  console.log(err);
+
+    res.status(500).json({ status: 500, message: "gagal", data: err})
+ })
+})
 module.exports = router;

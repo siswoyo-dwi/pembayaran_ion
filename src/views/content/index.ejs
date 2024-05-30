@@ -70,7 +70,8 @@
                             <div class="col-lg-12 col-xl-12">
                                 <h4><strong>HARIAN</strong></h4>
                             </div>
-                            <div id="list1"></div>
+                            <div id="list1">
+                            </div>
                         </div>
                         <div class="row" id="bulanan">
                             <div class="col-lg-12 col-xl-12">
@@ -90,8 +91,23 @@
                             </div>
                             <div id="list4"></div>
                         </div>
+                        <div class="row">
+                            <div class="col-lg-6 col-xl-6 col-sm-6">
+                                <label for="" class="col-sm-2 col-form-label">Pendapatan</label>
+                                <div class="col-lg-12 col-xl-12">
+                                    <div id="chartContainerPendapatan" style="height: 200px; width: 100%;"></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-xl-6 col-sm-6">
+                                <label for="" class="col-sm-2 col-form-label">Pengeluaran</label>
+                                <div class="col-lg-12 col-xl-12">
+                                    <div id="chartContainerPengeluaran" style="height: 200px; width: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+               
             </div>
         </div>
     </section>
@@ -99,6 +115,8 @@
     <script src="/javascripts/template/jquery.min.js"></script>
     <script src="/javascripts/template/bootstrap.bundle.min.js"></script>
     <!-- Plugins This Page -->
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.0/jquery.waypoints.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery.counterup@2.1.0/jquery.counterup.min.js"></script>
@@ -109,6 +127,7 @@
             delay: 200, // the delay time in ms
             time: 1500 // the speed time in ms
         });
+        
         $('#harian').hide()
         $('#bulanan').hide()
         $('#tahunan').hide()
@@ -142,12 +161,110 @@
                 $('#seluruh').hide()
             }
         })
-        $.post('/paket/count_paket_by',{by:'hari'}).then(function (hsl) {
-            console.log(hsl);
+        let data = [{label:'January',y:0}, 
+{label:'February',y:0}, 
+{label:'March',y:0}, 
+{label:'April',y:0}, 
+{label:'May',y:0}, 
+{label:'June',y:0}, 
+{label:'July',y:0}, 
+{label:'August',y:0}, 
+{label:'September',y:0}, 
+{label: 'October',y:0}, 
+{label: 'November',y:0}, 
+{label: 'December',y:0}]
+        window.onload =async function (params) {
+            let chart =await $.post('/pengeluaran/chart')
+            console.log(chart);
+        let pengeluaran = 0
+        for (let i = 0; i < chart.data.length; i++) {
+            pengeluaran+=chart.data[i].y
+            $('#pengeluaran').html(pengeluaran)
+        }
+        let c = chart.data
+        let dataChartPengeluaran = data.map(item => {
+            let match = c.find(element => element.label === item.label);
+            if (match) {
+                return {...item, y: match.y};
+            }
+            return item;
+            });
+        var chart2 = new CanvasJS.Chart("chartContainerPengeluaran", {
+            animationEnabled: true,
+            axisX: {
+                interval:1,
+                // labelAngle: 90,
+            },
+            axisY: {
+                lineThickness: 0,
+                gridThickness: 0,
+                tickLength: 0,
+                labelFormatter: function(e) {
+                    return "";
+                }
+            },
+            toolTip: {
+                shared: true,
+            },
+            data: [{
+                type: "column",
+                name:"Pengeluaran",
+                indexLabel: "{y}",
+                dataPoints: dataChartPengeluaran
+            }
+            ]
+        });
+        chart2.render();
+        let chartPendatapan =await $.post('/log/pendapatan')
+        console.log(chartPendatapan);
+        let pendapatan = 0
+        for (let i = 0; i < chartPendatapan.data.length; i++) {
+            pendapatan+=chartPendatapan.data[i].y
+            $('#pendapatan').html(pendapatan)
+        }
+        let d = chartPendatapan.data
+        let dataChartPendapatan = data.map(item => {
+            let match = d.find(element => element.label === item.label);
+            if (match) {
+                return {...item, y:Number(match.y)};
+            }
+            return item;
+            });
+            console.log(dataChartPendapatan);
+        var chart3 = new CanvasJS.Chart("chartContainerPendapatan", {
+            animationEnabled: true,
+            axisX: {
+                interval:1,
+                // labelAngle: 90,
+            },
+            axisY: {
+                lineThickness: 0,
+                gridThickness: 0,
+                tickLength: 0,
+                labelFormatter: function(e) {
+                    return "";
+                }
+            },
+            toolTip: {
+                shared: true,
+            },
+            data: [{
+                type: "column",
+                name:"Pendapatan",
+                indexLabel: "{y}",
+                dataPoints: dataChartPendapatan
+            }
+            ]
+        });
+        chart3.render();
+        await $.post('/paket/count_paket_by',{by:'hari'}).then(function (hsl) {
+            let b = ''
+            
+
             for (let i = 0; i < hsl.data.length; i++) {
                 let a = hsl.data[i]
-        $('#list1').append(`
-        <div class="col-lg-3 col-xl-3 mt-3">
+        // $('#list1').append(`
+        b += `<div class="col-lg-3 col-xl-3 mt-3">
             <div class="card" style="border: none;box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;">
                 <div class="card-body" style="padding: 15px;position: relative;">
                     <div style="width:40px;height: 40px;display: flex;justify-content: center;align-items: center;position: absolute;top:-20px;right:15px;background-color: brown;border-radius: 8px;">
@@ -167,15 +284,16 @@
                     </div>
                 </div>
             </div>
-        </div>`)}
+        </div>`}
+        $('#list1').append(`<div class="row" >${b}</div>`)
     })
 
         $.post('/paket/count_paket_by',{by:'bulan'}).then(function (hsl) {
-            console.log(hsl);
+            let b = ''
             for (let i = 0; i < hsl.data.length; i++) {
                 let a = hsl.data[i]
-        $('#list2').append(`
-        <div class="col-lg-3 col-xl-3 mt-3">
+        // $('#list2').append(`
+        b +=`<div class="col-lg-3 col-xl-3 mt-3">
             <div class="card" style="border: none;box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;">
                 <div class="card-body" style="padding: 15px;position: relative;">
                     <div style="width:40px;height: 40px;display: flex;justify-content: center;align-items: center;position: absolute;top:-20px;right:15px;background-color: brown;border-radius: 8px;">
@@ -195,15 +313,17 @@
                     </div>
                 </div>
             </div>
-        </div>`)}
+        </div>`}
+        $('#list2').append(`<div class="row" >${b}</div>`)
+
     })
 
         $.post('/paket/count_paket_by',{by:'tahun'}).then(function (hsl) {
-            console.log(hsl);
+            let b = ''
             for (let i = 0; i < hsl.data.length; i++) {
                 let a = hsl.data[i]
-        $('#list3').append(`
-        <div class="col-lg-3 col-xl-3 mt-3">
+        // $('#list3').append(`
+        b += `<div class="col-lg-3 col-xl-3 mt-3">
             <div class="card" style="border: none;box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;">
                 <div class="card-body" style="padding: 15px;position: relative;">
                     <div style="width:40px;height: 40px;display: flex;justify-content: center;align-items: center;position: absolute;top:-20px;right:15px;background-color: brown;border-radius: 8px;">
@@ -223,15 +343,17 @@
                     </div>
                 </div>
             </div>
-        </div>`)}
+        </div>`}
+        $('#list3').append(`<div class="row" >${b}</div>`)
+
     })
 
         $.post('/paket/count_paket_by').then(function (hsl) {
-            console.log(hsl);
+            let b = ''
             for (let i = 0; i < hsl.data.length; i++) {
                 let a = hsl.data[i]
-        $('#list4').append(`
-        <div class="col-lg-3 col-xl-3 mt-3">
+        // $('#list4').append(`
+        b += `<div class="col-lg-3 col-xl-3 mt-3">
             <div class="card" style="border: none;box-shadow: 0 .15rem 1.75rem 0 rgba(58,59,69,.15)!important;">
                 <div class="card-body" style="padding: 15px;position: relative;">
                     <div style="width:40px;height: 40px;display: flex;justify-content: center;align-items: center;position: absolute;top:-20px;right:15px;background-color: brown;border-radius: 8px;">
@@ -251,8 +373,11 @@
                     </div>
                 </div>
             </div>
-        </div>`)}
+        </div>`}
+        $('#list4').append(`<div class="row" >${b}</div>`)
+
     })
+}
 
     </script>
 </body>

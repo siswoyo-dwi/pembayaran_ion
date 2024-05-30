@@ -15,6 +15,7 @@ var passport = require('passport')
   var multer = require("multer");
   var st = require('knex-postgis')(sql_enak);
   var deasync = require('deasync');
+const { route } = require('./pengeluaran.js');
   path.join(__dirname, '/public/foto')
   router.use(bodyParser.json());
   router.use(bodyParser.urlencoded({ extended: true }));
@@ -183,5 +184,31 @@ router.get('/list',async function(req, res) {
     res.status(500).json({ status: 500, message: "gagal", data: err})
  })
 })
+router.post(`/pendapatan`,async function (req,res) {
+  let {tahun} = req.body
+  let value = []
 
+  let label = 'M'
+  let thn = new Date().getFullYear()
+  let str = ` and DATE_FORMAT(l.insertedAt,'%Y') = `
+
+  if (tahun=='-') {
+    label = 'Y'
+    thn = ''
+    str = ''
+  }else if (tahun) {
+    thn = tahun
+  }
+
+  let sql = `select sum(l.total_biaya) as y, date_format(l.insertedAt,'%${label}') as label  from log l where l.deletedAt  is null   ${str} ${thn} group by label `
+  
+  await sql_enak.raw(sql,value).then(data=>{
+    res.status(200).json({ data: data[0]})
+ })
+ .catch(err=>{
+  console.log(err);
+
+    res.status(500).json({ status: 500, message: "gagal", data: err})
+ })
+})
 module.exports = router;
