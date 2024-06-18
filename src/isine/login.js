@@ -116,7 +116,7 @@ console.log(req.user)
 router.get('/', function(req, res) {
 var tujuan = req.flash('tujuan');
 var pesan = req.flash('pesan');
-var menuju = "/backoffice";
+var menuju = "/";
 	if(tujuan!=""){
 		 menuju = tujuan;
 	}

@@ -115,7 +115,7 @@ app.use('/paket', paket);
 app.use('/log', log);
 
 
-app.get('/', function (req, res) {
+app.get('/',cek_login, function (req, res) {
   var tujuan = req.flash('tujuan');
 var pesan = req.flash('pesan');
 var menuju = "/beranda";
